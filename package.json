@@ -1,0 +1,33 @@
+{
+  "name": "jade",
+  "version": "1.0.0",
+  "description": "虎扑数字创意组 前端构建工具",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "autoprefixer": "^6.7.6",
+    "cssnext": "^1.8.4",
+    "front-matter": "^2.1.2",
+    "gulp": "^3.9.1",
+    "gulp-changed": "^2.0.0",
+    "gulp-concat": "^2.6.1",
+    "gulp-data": "^1.2.1",
+    "gulp-filter": "^5.0.0",
+    "gulp-html-minify": "0.0.14",
+    "gulp-htmlmin": "^3.0.0",
+    "gulp-jade": "^1.1.0",
+    "gulp-minify-css": "^1.2.4",
+    "gulp-plumber": "^1.1.0",
+    "gulp-postcss": "^6.3.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-sass": "^3.1.0",
+    "gulp-sftp": "^0.1.5",
+    "gulp-uglify": "^2.1.2",
+    "gulp-util": "^3.0.8",
+    "precss": "^1.4.0"
+  }
+}

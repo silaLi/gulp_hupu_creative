@@ -1,0 +1,26 @@
+{
+	"scss": {
+		"input": "/Users/liyang2016/nginx-server/program/biekemalasong/front-src/style/css/*.scss",
+		"output": "/Users/liyang2016/nginx-server/program/biekemalasong/front-src/style/js",
+		"cssoutput": "/Users/liyang2016/nginx-server/program/biekemalasong/front-src/style/css",
+		"name": "$css.js"
+	},
+	"html_loader": {
+		"input": "/Users/liyang2016/nginx-server/program/biekemalasong/front-src/style/html/*.html",
+		"output": "/Users/liyang2016/nginx-server/program/biekemalasong/front-src/style/js",
+		"name": "$html.js"
+	},
+	"dest": {
+		"input": "/Users/liyang2016/nginx-server/program/biekemalasong/front-src/style/js/*.js",
+		"output": "/Users/liyang2016/nginx-server/program/biekemalasong/front-src/style/start",
+		"name": "__main.js"
+	},
+	"ftp": {
+		"open": false,
+		"host": "",
+	    "user": "",
+	    "password": "",
+	    "port": "5277",
+		"remotePath": "/data/www-data/hupu.com/minisites/laravel_minisites_su/public/site/buick/start"
+	}
+}
