@@ -1,6 +1,8 @@
 
 // 项目配置文件
-var config = require("./config/biekemalasong.json");
+var config_json = "./config/jiadele.json";
+console.log(config_json)
+var config = require(config_json);
 
 
 var path = require("path");
@@ -9,6 +11,7 @@ var data = require("gulp-data");
 
 var fm = require('front-matter');
 var changed = require('gulp-changed');
+var gulpif = require('gulp-if');
 
 var sass = require("gulp-sass");
 var plumber = require('gulp-plumber');
@@ -90,13 +93,13 @@ gulp.task('dest', function(){
         // .pipe(uglify())
         .pipe(concat(config.dest.name))
         .pipe(gulp.dest(config.dest.output))
-        .pipe(sftp({
+        .pipe(gulpif(config.ftp.open, sftp({
             user: config.ftp.user,
             password: config.ftp.password,
             host: config.ftp.host,
             port: config.ftp.port,
             remotePath: config.ftp.remotePath
-        }));
+        })));
 });
 gulp.task('run', function(){
     // 构建html
