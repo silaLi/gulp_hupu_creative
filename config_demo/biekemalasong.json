@@ -1,18 +1,19 @@
 {
+	"config": "/Users/liyang2016/nginx-server/program/fcbayern-miniset-active-list/front-src/style/component-config",
 	"scss": {
-		"input": "/Users/liyang2016/nginx-server/program/biekemalasong/front-src/style/css/*.scss",
-		"output": "/Users/liyang2016/nginx-server/program/biekemalasong/front-src/style/js",
-		"cssoutput": "/Users/liyang2016/nginx-server/program/biekemalasong/front-src/style/css",
+		"input": "/Users/liyang2016/nginx-server/program/fcbayern-miniset-active-list/front-src/style/css/**/*.scss",
+		"output": "/Users/liyang2016/nginx-server/program/fcbayern-miniset-active-list/front-src/style/js",
+		"cssoutput": "/Users/liyang2016/nginx-server/program/fcbayern-miniset-active-list/front-src/style/css",
 		"name": "$css.js"
 	},
 	"html_loader": {
-		"input": "/Users/liyang2016/nginx-server/program/biekemalasong/front-src/style/html/*.html",
-		"output": "/Users/liyang2016/nginx-server/program/biekemalasong/front-src/style/js",
+		"input": "/Users/liyang2016/nginx-server/program/fcbayern-miniset-active-list/front-src/style/html/**/*.html",
+		"output": "/Users/liyang2016/nginx-server/program/fcbayern-miniset-active-list/front-src/style/js",
 		"name": "$html.js"
 	},
 	"dest": {
-		"input": "/Users/liyang2016/nginx-server/program/biekemalasong/front-src/style/js/*.js",
-		"output": "/Users/liyang2016/nginx-server/program/biekemalasong/front-src/style/start",
+		"input": "/Users/liyang2016/nginx-server/program/fcbayern-miniset-active-list/front-src/style/js/*.js",
+		"output": "/Users/liyang2016/nginx-server/program/fcbayern-miniset-active-list/front-src/style/start",
 		"name": "__main.js"
 	},
 	"ftp": {
@@ -20,7 +21,7 @@
 		"host": "",
 	    "user": "",
 	    "password": "",
-	    "port": "5277",
+	    "port": "",
 		"remotePath": "/data/www-data/hupu.com/minisites/laravel_minisites_su/public/site/buick/start"
 	}
 }

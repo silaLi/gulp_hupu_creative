@@ -1,6 +1,6 @@
 
 // 项目配置文件
-var config_json = "./config/fcbayern-miniset-active-list.json";
+var config_json = "./config/adidas.json";
 console.log(config_json)
 var config = require(config_json);
 
