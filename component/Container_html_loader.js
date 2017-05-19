@@ -1,11 +1,23 @@
-;Container.set('PagerManger', function(_$, _$s, ___HtmlStr, ___CssStr, ES5Array, FastRender, Attr, Path, DomReadyComplete) {
-    var mian_JS = _$('script[main-js]');
-    Path.update(mian_JS.src)
+;Container.set('PagerManger', function(_$$, ES5Array, Path, DomReadyComplete) {
+    var mian_JS = _$$('script[main-js]').getElemList(0);
+    Path.update(mian_JS.src);
 
     var PagerMangerCache = {
-        cssText: ___CssStr,
-        htmlText: ___HtmlStr,
+        cssText: '',
+        htmlText: '',
         filterList: [],
+        setHtml: function(html){
+            this.htmlText = html;
+        },
+        pushHtml: function(html){
+            this.htmlText += html;
+        },
+        setCss: function(css){
+            this.cssText = css;
+        },
+        pushCss: function(css){
+            this.cssText += css;
+        },
         pushFitlter: function(filter, value){
             this.filterList.push(filter);
         },
@@ -16,10 +28,10 @@
             this.pushFitlter(filter)
         },
         insertCss: function(){
-            _$('head').appendChild(_createStyleElement(this.cssText))
+            _$$('head').append(_createStyleElement(this.cssText))
         },
         insertHml: function(insertSelector){
-            _$(insertSelector || 'body').innerHTML = this.htmlText;
+            _$$(insertSelector || 'body').getElemList(0).innerHTML = this.htmlText;
         },
         executeFilter: function(){
             new ES5Array(this.filterList).forEach(function(filter){

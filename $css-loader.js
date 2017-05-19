@@ -28,9 +28,9 @@ module.exports = function(opt) {
 
 		if (file.isBuffer()) {
 			var content = String(file.contents);
-			var ID = String(file.relative).replace("\\", "\\\\").replace(/.html$/, "");
+			var ID = String(file.relative).replace("\\", "\\\\").replace(/.css$/, "").replace(/[\/|\.]/, "_");
 			content = content.replace(/\'/g, "\\'");
-			var output = "Container.directSet('___CssStr', '"+content+"');";
+			var output = "Container.directSet('___Css_"+ID+"', '"+content+"');";
 			
 			file.contents = new Buffer(output);
 

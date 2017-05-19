@@ -28,10 +28,9 @@ module.exports = function(opt) {
 
 		if (file.isBuffer()) {
 			var content = String(file.contents);
-			var ID = String(file.relative).replace("\\", "\\\\").replace(/.html$/, "");
+			var ID = String(file.relative).replace("\\", "\\\\").replace(/.html$/, "_html").replace(/\//, "_");
 			content = content.replace(/\'/g, "\\'").replace(/[\r|\n|\r\n]/g, '');
-
-			var output = "Container.directSet('___HtmlStr', '"+content+"');";
+			var output = "Container.directSet('___Html_"+ID+"', '"+content+"');";
 			
 			file.contents = new Buffer(output);
 
