@@ -1,6 +1,6 @@
 
 // 项目配置文件
-var config_json = "./config/adidas.json";
+var config_json = "./config/answer2000.json";
 console.log(config_json)
 var config = require(config_json);
 

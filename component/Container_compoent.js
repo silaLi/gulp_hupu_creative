@@ -392,9 +392,9 @@ Container.set('Path', function(){
         self.containClassFilter = function(className, containHandler, notContainHandler){
             each(self.getElemList(), function(elem, i){
                 if (CommonClassList.contains(elem, className)) {
-                    containHandler(elem, i);
+                    containHandler && containHandler(elem, i);
                 }else{
-                    notContainHandler(elem, i);
+                    notContainHandler && notContainHandler(elem, i);
                 }
             })
             return self;
@@ -499,6 +499,41 @@ Container.set('Path', function(){
             each(cssStyleList, function(cssStyle){
                 self.css(cssStyle);
             })
+        }
+        
+        //########################################################
+        // innerhtml innerText  ctrl
+        //########################################################
+        self.text = function(text){
+            var elemList = self.getElemList();
+            each(elemList, function(elem){
+                elem.innerText = text;
+            })
+        }
+        self.html = function(html){
+            var elemList = self.getElemList();
+            each(elemList, function(elem){
+                elem.innerHTML = html;
+            })
+        }
+
+        //########################################################
+        // position  ctrl
+        //########################################################
+        self.positionTop = function(){
+            var elemList = self.getElemList();
+            var top = 0
+            if (elemList[0]) {
+                var elem = elemList[0];
+
+                while(elem.tagName != 'BODY' && elem.tagName != 'HTML'){
+                    top += elem.offsetTop
+                    elem = elem.parentNode;
+                }
+                return top;
+            }else{
+                return 0;
+            }
         }
     }
 
