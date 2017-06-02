@@ -525,11 +525,11 @@ Container.set('Path', function(){
             var top = 0
             if (elemList[0]) {
                 var elem = elemList[0];
-
                 while(elem.tagName != 'BODY' && elem.tagName != 'HTML'){
                     top += elem.offsetTop
                     elem = elem.parentNode;
                 }
+
                 return top;
             }else{
                 return 0;

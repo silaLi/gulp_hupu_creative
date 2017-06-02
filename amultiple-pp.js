@@ -1,10 +1,6 @@
 
 // 项目配置文件
-var config_json = "./config/adidas.json";
-console.log(config_json)
-var config = require(config_json);
 
-var componentConfigDir = config.config;
 
 var fs = require("fs");
 var path = require("path");
@@ -37,6 +33,8 @@ var sftp = require('gulp-sftp');
 var $HTML_loader = require('./$html-loader.js')
 var $CSS_loader = require('./$css-loader.js')
 
+
+
 var processors = [
     autoprefixer({
         browsers: ["IE > 8", "Opera > 11", "Firefox > 14", "safari > 5", "Chrome > 30"]
@@ -44,19 +42,38 @@ var processors = [
     cssnext,
     precss
 ]
-componentConfigFiles = fs.readdirSync(componentConfigDir);
-componentConfigFiles.forEach(function(componentFile){
-    if (/\.config\.js$/.test(componentFile)) {
-        readComponent(path.resolve(componentConfigDir, componentFile));
-    }
-})
 
-function readComponent(configFile){
-    var config = require(configFile)
-    makeGulpTask(path.dirname(configFile), config)
+readConfig('./config')
+
+function readConfig(dir){
+    getAllFiles(dir).forEach(function(config_json){
+        if (!/\.json$/.test(config_json)) {
+            return
+        }
+        
+        config_json = path.resolve(dir, config_json)
+        console.log(config_json)
+        var config = require(config_json);
+
+        var componentConfigDir = config.config;
+        componentConfigFiles = fs.readdirSync(componentConfigDir);
+        componentConfigFiles.forEach(function(componentFile){
+            if (/\.config\.js$/.test(componentFile)) {
+                readComponent(path.resolve(componentConfigDir, componentFile), config);
+            }
+        })
+    })
 }
 
-function makeGulpTask(pathNameSpace, component){
+
+
+
+function readComponent(configFile, config_json){
+    var config = require(configFile)
+    makeGulpTask(path.dirname(configFile), config, config_json)
+}
+
+function makeGulpTask(pathNameSpace, component, config_json){
     var cssTaskName = component.name + '__css';
     var htmlTaskName = component.name + '__html';
     var destTaskName = component.name + '__dest';
@@ -158,16 +175,19 @@ function makeGulpTask(pathNameSpace, component){
             // .pipe(uglify())
             .pipe(concat('__' + component.name + '.js'))
             .pipe(gulp.dest(path.resolve(pathNameSpace, '../start/')))
-            .pipe(gulpif(config.ftp.open, sftp({
-                user: config.ftp.user,
-                password: config.ftp.password,
-                host: config.ftp.host,
-                port: config.ftp.port,
-                remotePath: config.ftp.remotePath
+            .pipe(gulpif(config_json.ftp.open, sftp({
+                user: config_json.ftp.user,
+                password: config_json.ftp.password,
+                host: config_json.ftp.host,
+                port: config_json.ftp.port,
+                remotePath: config_json.ftp.remotePath
             })));
     }
 }
-
+function getAllFiles(root){
+    var fs = require("fs");
+    return fs.readdirSync(root);
+}
 
 function getDateTimestampFromate(date){
     date = date || new Date();
