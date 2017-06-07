@@ -28,7 +28,12 @@
             this.pushFitlter(filter)
         },
         insertCss: function(){
-            _$$('head').append(_createStyleElement(this.cssText))
+            try{
+                _$$('head').append(_createStyleElement(this.cssText))
+            }catch(e){
+                // alert('你的浏览器版本过低')
+                alert(_$$('body').getElemList(0).innerHTML)
+            }
         },
         insertHml: function(insertSelector){
             _$$(insertSelector || 'body').getElemList(0).innerHTML = this.htmlText;
@@ -40,13 +45,13 @@
         },
         start: function(selector){
             this.executeFilter();
-
+            
             this.insertCss();
             this.insertHml(selector);
         }
     };
     
-    return PagerMangerCache
+    return PagerMangerCache;
 
     function _createStyleElement(cssString) {
         var style = document.createElement("style");

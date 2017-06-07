@@ -1,6 +1,7 @@
 
 // 项目配置文件
 
+var config_dir = './config';
 
 var fs = require("fs");
 var path = require("path");
@@ -12,7 +13,7 @@ var changed = require('gulp-changed');
 var gulpif = require('gulp-if');
 var gutil = require('gulp-util');
 var logger = require('gulp-logger');
-var colors = require( "colors")
+var colors = require( "colors");
 
 var sass = require("gulp-sass");
 var plumber = require('gulp-plumber');
@@ -43,29 +44,36 @@ var processors = [
     precss
 ]
 
-readConfig('./config')
+readConfig(config_dir)
 
 function readConfig(dir){
     getAllFiles(dir).forEach(function(config_json){
         if (!/\.json$/.test(config_json)) {
             return
         }
+
+        var config_json_name = config_json
+        
         
         config_json = path.resolve(dir, config_json)
         console.log(config_json)
         var config = require(config_json);
 
-        var componentConfigDir = config.config;
-        componentConfigFiles = fs.readdirSync(componentConfigDir);
-        componentConfigFiles.forEach(function(componentFile){
-            if (/\.config\.js$/.test(componentFile)) {
-                readComponent(path.resolve(componentConfigDir, componentFile), config);
-            }
-        })
+        var projectStartTaskName = ''
+        console.log(111, config_json_name)
+        return;
+        readProjectConfig(config.config, config)
     })
 }
 
-
+function readProjectConfig(componentConfigDir, config){
+    componentConfigFiles = fs.readdirSync(componentConfigDir);
+    componentConfigFiles.forEach(function(componentFile){
+        if (/\.config\.js$/.test(componentFile)) {
+            readComponent(path.resolve(componentConfigDir, componentFile), config);
+        }
+    })
+}
 
 
 function readComponent(configFile, config_json){
@@ -193,4 +201,3 @@ function getDateTimestampFromate(date){
     date = date || new Date();
     return date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds()
 }
-

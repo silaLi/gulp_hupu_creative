@@ -114,7 +114,7 @@ function makeGulpTask(pathNameSpace, component){
     gulp.watch(destSourcesList, [destTaskName]);
     
     // 默认启动时自动编译一次
-    gulp.start(cssTaskName, htmlTaskName);
+    gulp.start([cssTaskName, htmlTaskName]);
     
     // 执行html编译任务
     function runTaskCss(cssSourcesList){
@@ -153,17 +153,21 @@ function makeGulpTask(pathNameSpace, component){
     }
     //  执行发布任务
     function runTaskDest(destSourcesList) {
+        var destName = '__' + component.name + '.js';
+        var remotePath = path.resolve(config.ftp.remotePath + '/') + '/'
+        console.log(destSourcesList)
+        console.log('-------------------------------'.green)
         gulp.src(destSourcesList)
             .pipe(plumber())
             // .pipe(uglify())
-            .pipe(concat('__' + component.name + '.js'))
+            .pipe(concat(destName))
             .pipe(gulp.dest(path.resolve(pathNameSpace, '../start/')))
             .pipe(gulpif(config.ftp.open, sftp({
                 user: config.ftp.user,
                 password: config.ftp.password,
                 host: config.ftp.host,
                 port: config.ftp.port,
-                remotePath: config.ftp.remotePath
+                remotePath: remotePath
             })));
     }
 }

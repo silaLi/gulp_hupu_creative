@@ -61,24 +61,32 @@ Container.set('Path', function(){
     var a_pathname = document.createElement('a');
     var __dirname__list = null;
     var __dirname = null;
-    
+
+    var __protocol = location.protocol
+    var __host = location.host
+    var __origin = __protocol+ '//'+ __host; 
+
     setDirName(location.pathname);
+
     
     function dir2List(path){
-        var pathList = path.split('/');
+        var pathListNew = [], pathList = path.split('/');
 
-        pathList.shift();
-        pathList.pop();
+        for (var i = 0, len = pathList.length - 1; i < len; i++) {
+            if (pathList[i] != '') {
+                pathListNew.push(pathList[i])
+            }
+        }
 
-        return pathList;
+        return pathListNew;
     }
     function dirList2String(pathList){
         return '/' + pathList.join('/') + '/'
     }
     function setDirName(path){
+
         a.href = path;
         path = a.pathname;
-        
         __dirname__list = dir2List(path);
         __dirname = dirList2String(__dirname__list);
     }
@@ -88,8 +96,12 @@ Container.set('Path', function(){
             return __dirname;
         },
         resolve: function(url){
-            a_pathname.href = __dirname + url;
-            return a.origin + a_pathname.pathname + a_pathname.search;
+            a_pathname.href = __origin + __dirname + url;
+           
+            var search = a_pathname.search
+            var hash = a_pathname.hash
+
+            return a_pathname.href;
         }
     }
 });
@@ -113,8 +125,8 @@ Container.set('Path', function(){
 ;Container.set('_$$', function() {
     function each(list, handle){
         for (var i = 0; i < list.length; i++) {
-            var result = handle.call(this, list[i], i) || {break: false};
-            if (result.break === true) {
+            var result = handle.call(this, list[i], i) || {returnBreak: false};
+            if (result.returnBreak === true) {
                 return result.returnValue;
             }
         }
@@ -329,7 +341,6 @@ Container.set('Path', function(){
                     each(self.elemParent, function(elemParent){
                         self.elemList = ([].slice.call(_$s(self.elemSelector, elemParent))).concat(self.elemList);
                     });
-                    // console.log('+++++++', self.elemList)
                 }
             }
             if (index === undefined) {
@@ -381,7 +392,7 @@ Container.set('Path', function(){
                 if (CommonClassList.contains(elem, className) === false) {
                     return {
                         returnValue: false,
-                        break: true
+                        returnBreak: true
                     }
                 }
             });
