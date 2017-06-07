@@ -37,6 +37,52 @@ var sftp = require('gulp-sftp');
 var $HTML_loader = require('./$html-loader.js')
 var $CSS_loader = require('./$css-loader.js')
 
+var sftpHandler = (function (){
+    return {
+        waitList: [],
+        __running: false,
+        ready: function(gulpSrc, config, destSourcesList, destName, remotePath){
+            this.saveWait(gulpSrc, config, destSourcesList, destName, remotePath);
+            this.start();
+        },
+        start: function(){
+            if (this.__running == false) {
+                this.run();
+            }
+        },
+        run: function(mark){
+            var gulpSftp = this.waitList.shift()
+            this.__running = true;
+            
+            if (gulpSftp) {
+                var gulpSrc = gulpSftp[0]
+                var config = gulpSftp[1]
+                var destSourcesList = gulpSftp[2]
+                var destName = gulpSftp[3]
+                var remotePath = gulpSftp[4]
+
+                var self = this;
+                gulp.src(gulpSrc)
+                    .pipe(gulpif(config.ftp.open, sftp({
+                        user: config.ftp.user,
+                        password: config.ftp.password,
+                        host: config.ftp.host,
+                        port: config.ftp.port,
+                        remotePath: remotePath,
+                        callback: function(){
+                            self.run();
+                        }
+                    })))
+            }else{
+                this.__running = false;
+            }
+        },
+        saveWait: function(gulpSrc, config, destSourcesList, destName, remotePath){
+            this.waitList.push([gulpSrc, config, destSourcesList, destName, remotePath]);
+        }
+    }
+})();
+
 var processors = [
     autoprefixer({
         browsers: ["IE > 8", "Opera > 11", "Firefox > 14", "safari > 5", "Chrome > 30"]
@@ -107,6 +153,7 @@ function makeGulpTask(pathNameSpace, component){
         console.log('['+getDateTimestampFromate()+'] ' + destTaskName.green + ' run...')
         runTaskDest(destSourcesList);
     })
+
     
     // 注册文件监听任务
     gulp.watch(cssSourcesList, [cssTaskName]);
@@ -154,21 +201,21 @@ function makeGulpTask(pathNameSpace, component){
     //  执行发布任务
     function runTaskDest(destSourcesList) {
         var destName = '__' + component.name + '.js';
-        var remotePath = path.resolve(config.ftp.remotePath + '/') + '/'
-        console.log(destSourcesList)
-        console.log('-------------------------------'.green)
+        var remotePath = path.resolve(config.ftp.remotePath + '/') + '/';
+
         gulp.src(destSourcesList)
             .pipe(plumber())
             // .pipe(uglify())
             .pipe(concat(destName))
             .pipe(gulp.dest(path.resolve(pathNameSpace, '../start/')))
-            .pipe(gulpif(config.ftp.open, sftp({
-                user: config.ftp.user,
-                password: config.ftp.password,
-                host: config.ftp.host,
-                port: config.ftp.port,
-                remotePath: remotePath
-            })));
+
+        sftpHandler.ready(
+            path.resolve(pathNameSpace, '../start/', destName),
+            JSON.parse(JSON.stringify(config)),
+            JSON.parse(JSON.stringify(destSourcesList)),
+            destName,
+            remotePath
+        )
     }
 }
 
