@@ -284,11 +284,134 @@ Container.set('Path', function(){
  * * 1. 元素选择
  * * 2.
  */
+;Container.set('DomReady', function(_$$) {
+    var Cache = {
+        complete: document.readyState === 'complete',
+        handler: []
+    }
+    _$$('').setElemList([document]).on('DOMContentLoaded', completeHandlde)
+
+    completeHandlde();
+    function completeHandlde(event){
+        Cache.complete = true;
+        for (var i = 0, len = Cache.handler.length; i < len; i++) {
+            complete(Cache.handler[i]);
+        }
+        Container.set('DomReadyComplete', true);
+    }
+    function complete(obj){
+        if (Cache.complete && obj.duration > 0) {
+            setTimeout(function(){
+                obj.handler && obj.handler();
+            }, obj.duration);
+        }else if (Cache.complete && obj.duration <= 0) {
+            obj.handler && obj.handler();
+        }
+    }
+    return function(handler, duration){
+        duration = duration || 0;
+        var obj = {
+            duration: duration,
+            handler: handler
+        }
+        Cache.handler.push(obj);
+
+        complete(obj);
+    }
+});
+;Container.set('ES5Array', function() {
+    return ES5Array;
+
+    function ES5Array(array){
+        if (!(array && typeof array.length == 'number')) {
+            throw 'not is array';
+        }
+        this.value = array;
+
+        this.forEach = forEach;
+    }
+
+    function forEach(fn, context) {
+        var array = this.value;
+        
+        for (var k = 0, len = array.length; k < len; k++) {
+            if (typeof fn === "function" && Object.prototype.hasOwnProperty.call(array, k)) {
+                fn.call(context, array[k], k, array);
+            }
+        }
+    };
+});
+Container.set('Path', function(){
+    var a = document.createElement('a');
+    var a_pathname = document.createElement('a');
+    var __dirname__list = null;
+    var __dirname = null;
+
+    var __protocol = location.protocol
+    var __host = location.host
+    var __origin = __protocol+ '//'+ __host; 
+
+    setDirName(location.pathname);
+
+    
+    function dir2List(path){
+        var pathListNew = [], pathList = path.split('/');
+
+        for (var i = 0, len = pathList.length - 1; i < len; i++) {
+            if (pathList[i] != '') {
+                pathListNew.push(pathList[i])
+            }
+        }
+
+        return pathListNew;
+    }
+    function dirList2String(pathList){
+        return '/' + pathList.join('/') + '/'
+    }
+    function setDirName(path){
+
+        a.href = path;
+        path = a.pathname;
+        __dirname__list = dir2List(path);
+        __dirname = dirList2String(__dirname__list);
+    }
+    return {
+        update: setDirName,
+        getPath: function(){
+            return __dirname;
+        },
+        resolve: function(url){
+            a_pathname.href = __origin + __dirname + url;
+           
+            var search = a_pathname.search
+            var hash = a_pathname.hash
+
+            return a_pathname.href;
+        }
+    }
+});
+;Container.set('Image', function(){
+    return function(){
+        if (window.Image) {
+            return new window.Image();
+        }else{
+            return function(){
+                return document.createElement('img');
+            }
+        }
+    }
+});
+/**
+ * Dom 元素操作
+ *
+ * * 1. 元素选择
+ * * 2.
+ */
 ;Container.set('_$$', function() {
     function each(list, handle){
         for (var i = 0; i < list.length; i++) {
-            var result = handle.call(this, list[i], i) || {break: false};
-            if (result.break === true) {
+            var result = handle.call(this, list[i], i) || {returnBreak: false};
+            if (result.returnBreak === true) {
                 return result.returnValue;
             }
         }
@@ -299,10 +422,18 @@ Container.set('Path', function(){
     function _$s(selector, elem) {
         return elem ? elem.querySelectorAll(selector) : document.querySelectorAll(selector) 
     }
+    function $$(elemSelector){
+        return new DomAPI(elemSelector);
+    }
     //########################################################
     // ClassList
     //########################################################
     var CommonClassList = {
+        add: addClass,
+        remove: removeClass,
+        contains: containsClass
+    }
+    $$.ClassList = {
         add: addClass,
         remove: removeClass,
         contains: containsClass
@@ -381,6 +512,7 @@ Container.set('Path', function(){
             return this;
         }
     }
+    $$.Attr = CommonAttr;
     //########################################################
     
     //########################################################
@@ -398,12 +530,75 @@ Container.set('Path', function(){
         }
         return childElements;
     }
+    $$.render = function(str){
+        if (typeof str === 'string') {
+            var elemList = CommonFastRender(str)
+        }else{
+            var elemList = str;
+        }
+        return new DomAPI().setElemList(elemList)
+    }
     //########################################################
     
-    function $$(elemSelector){
-        return new DomAPI(elemSelector);
-    }
+    //########################################################
+    // dom 事件 ctrl
+    //########################################################
+    $$.Event = {
+      on: function(elem, eventType, next, useCapture) {
+            useCapture = useCapture ? true : false;
+            if (!elem) {
+                return 'has no element in bindEvent'
+            }
+            if (elem != window && typeof elem.length === 'number' && !elem.nodeType) {
+                for (var i = elem.length - 1; i >= 0; i--) {
+                    bind(elem[i], eventType, next, useCapture);
+                }
+            } else {
+                bind(elem, eventType, next, useCapture)
+            }
 
+            function bind(elem, eventType, next, useCapture) {
+                var eventTypes = eventType.split(' ');
+                for (var i = eventTypes.length - 1; i >= 0; i--) {
+                    if (elem.addEventListener) {
+                        elem.addEventListener(eventTypes[i], next, useCapture);
+                    }else if (elem.detachEvent) {
+                        elem.detachEvent('on' + eventTypes[i], next);
+                    } else {
+                        elem['on' + eventTypes[i]] = next;
+                    }
+                }
+            }
+        },
+        off: function(elem, eventType, next, useCapture) {
+            useCapture = useCapture || false;
+
+            if (!elem) {
+                return 'has no element in bindEvent'
+            }
+            if (elem != window && typeof elem.length === 'number') {
+                for (var i = elem.length - 1; i >= 0; i--) {
+                    unbind(elem[i], eventType, next, useCapture);
+                }
+            } else {
+                unbind(elem, eventType, next, useCapture)
+            }
+
+            function unbind(elem, eventType, next, useCapture) {
+                var eventTypes = eventType.split(' ');
+                for (var i = eventTypes.length - 1; i >= 0; i--) {
+                    if (elem.removeEventListener) {
+                        elem.removeEventListener(eventTypes[i], next, useCapture);
+                    } else if (elem.detachEvent) {
+                        elem.detachEvent('on' + eventTypes[i], next);
+                    } else {
+                        elem['on' + eventTypes[i]] = null;
+                    }
+                }
+            }
+        }
+    }
+    //########################################################
     function DomAPI(elemSelector, elemParent){
         var self = this;
         if (elemSelector !== undefined) {
@@ -431,7 +626,6 @@ Container.set('Path', function(){
                     each(self.elemParent, function(elemParent){
                         self.elemList = ([].slice.call(_$s(self.elemSelector, elemParent))).concat(self.elemList);
                     });
-                    // console.log('+++++++', self.elemList)
                 }
             }
             if (index === undefined) {
@@ -483,7 +677,7 @@ Container.set('Path', function(){
                 if (CommonClassList.contains(elem, className) === false) {
                     return {
                         returnValue: false,
-                        break: true
+                        returnBreak: true
                     }
                 }
             });
@@ -494,9 +688,9 @@ Container.set('Path', function(){
         self.containClassFilter = function(className, containHandler, notContainHandler){
             each(self.getElemList(), function(elem, i){
                 if (CommonClassList.contains(elem, className)) {
-                    containHandler(elem, i);
+                    containHandler && containHandler(elem, i);
                 }else{
-                    notContainHandler(elem, i);
+                    notContainHandler && notContainHandler(elem, i);
                 }
             })
             return self;
@@ -567,58 +761,16 @@ Container.set('Path', function(){
         // dom 事件 ctrl
         //########################################################
         self.on = function(eventType, next, useCapture) {
-            useCapture = useCapture ? true : false;
-            var elem = self.getElemList();
-            if (!elem) {
-                return 'has no element in bindEvent'
-            }
-            if (elem != window && typeof elem.length === 'number' && !elem.nodeType) {
-                for (var i = elem.length - 1; i >= 0; i--) {
-                    bind(elem[i], eventType, next, useCapture);
-                }
-            } else {
-                bind(elem, eventType, next, useCapture)
-            }
-
-            function bind(elem, eventType, next, useCapture) {
-                var eventTypes = eventType.split(' ');
-                for (var i = eventTypes.length - 1; i >= 0; i--) {
-                    if (elem.addEventListener) {
-                        elem.addEventListener(eventTypes[i], next, useCapture);
-                    }else if (elem.detachEvent) {
-                        elem.detachEvent('on' + eventTypes[i], next);
-                    } else {
-                        elem['on' + eventTypes[i]] = next;
-                    }
-                }
-            }
+            $$.Event.on(this.getElemList(), eventType, next, useCapture)
         }
 
         self.off = function(eventType, next, useCapture) {
-            useCapture = useCapture || false;
-            var elem = self.getElemList();
-            if (!elem) {
-                return 'has no element in bindEvent'
-            }
-            if (elem != window && typeof elem.length === 'number') {
-                for (var i = elem.length - 1; i >= 0; i--) {
-                    unbind(elem[i], eventType, next, useCapture);
-                }
-            } else {
-                unbind(elem, eventType, next, useCapture)
-            }
-
-            function unbind(elem, eventType, next, useCapture) {
-                var eventTypes = eventType.split(' ');
-                for (var i = eventTypes.length - 1; i >= 0; i--) {
-                    if (elem.removeEventListener) {
-                        elem.removeEventListener(eventTypes[i], next, useCapture);
-                    } else if (elem.detachEvent) {
-                        elem.detachEvent('on' + eventTypes[i], next);
-                    } else {
-                        elem['on' + eventTypes[i]] = null;
-                    }
-                }
+            $$.Event.off(this.getElemList(), eventType, next, useCapture)
+        }
+        self.each = function(handle){
+            var elemList = this.getElemList();
+            for (var i = elemList.length - 1; i >= 0; i--) {
+                handle(elemList[i], i)
             }
         }
         //########################################################
@@ -644,7 +796,46 @@ Container.set('Path', function(){
                 self.css(cssStyle);
             })
         }
+        
+        //########################################################
+        // innerhtml innerText  ctrl
+        //########################################################
+        self.text = function(text){
+            var elemList = self.getElemList();
+            each(elemList, function(elem){
+                elem.innerText = text;
+            })
+        }
+        self.html = function(html){
+            var elemList = self.getElemList();
+            each(elemList, function(elem){
+                elem.innerHTML = html;
+            })
+        }
+        self.index = function(index){
+            return new DomAPI().setElemList([this.getElemList(index)]);
+        }
+
+        //########################################################
+        // position  ctrl
+        //########################################################
+        self.positionTop = function(){
+            var elemList = self.getElemList();
+            var top = 0
+            if (elemList[0]) {
+                var elem = elemList[0];
+                while(elem.tagName != 'BODY' && elem.tagName != 'HTML'){
+                    top += elem.offsetTop
+                    elem = elem.parentNode;
+                }
+
+                return top;
+            }else{
+                return 0;
+            }
+        }
     }
+
     //########################################################
     // event preventDefault and stopPropagation  ctrl
     //########################################################
@@ -655,14 +846,7 @@ Container.set('Path', function(){
     }
     //########################################################
     
-    //########################################################
-    // attribute ctrl
-    //########################################################
-    $$.render = function(str){
-        var elemList = CommonFastRender(str)
-        return new DomAPI().setElemList(elemList)
-    }
-
+    
     //########################################################
     // Class mark
     //########################################################

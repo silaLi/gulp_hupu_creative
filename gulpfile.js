@@ -1,7 +1,8 @@
 
 // 项目配置文件
-var config_json = "./config/jiadele.json";
-console.log(config_json)
+// var config_json = "./config/fcbayern-miniset.json";
+var config_json = "./config/biekemalasong.json";
+console.log(config_json);
 var config = require(config_json);
 
 
