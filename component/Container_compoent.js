@@ -55,7 +55,6 @@
         }
     };
 });
-Container.set()
 Container.set('Path', function(){
     var a = document.createElement('a');
     var a_pathname = document.createElement('a');

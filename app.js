@@ -1,6 +1,6 @@
 
 // 项目配置文件
-var config_json = "./config/adidas.json";
+var config_json = "./config/fcbayern-miniset-active-list.json";
 console.log(config_json)
 var config = require(config_json);
 
@@ -63,7 +63,7 @@ var sftpHandler = (function (){
 
                 var self = this;
                 gulp.src(gulpSrc)
-                    .pipe(gulpif(config.ftp.open, sftp({
+                    .pipe(sftp({
                         user: config.ftp.user,
                         password: config.ftp.password,
                         host: config.ftp.host,
@@ -72,9 +72,10 @@ var sftpHandler = (function (){
                         callback: function(){
                             self.run();
                         }
-                    })))
+                    }))
             }else{
                 this.__running = false;
+                console.log('['+getDateTimestampFromate()+'] ' + 'SFTP'.green + ' run over...')
             }
         },
         saveWait: function(gulpSrc, config, destSourcesList, destName, remotePath){
@@ -208,14 +209,16 @@ function makeGulpTask(pathNameSpace, component){
             // .pipe(uglify())
             .pipe(concat(destName))
             .pipe(gulp.dest(path.resolve(pathNameSpace, '../start/')))
-
-        sftpHandler.ready(
-            path.resolve(pathNameSpace, '../start/', destName),
-            JSON.parse(JSON.stringify(config)),
-            JSON.parse(JSON.stringify(destSourcesList)),
-            destName,
-            remotePath
-        )
+        
+        if (config.ftp.open) {
+            sftpHandler.ready(
+                path.resolve(pathNameSpace, '../start/', destName),
+                JSON.parse(JSON.stringify(config)),
+                JSON.parse(JSON.stringify(destSourcesList)),
+                destName,
+                remotePath
+            )
+        }
     }
 }
 
